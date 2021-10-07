@@ -21,3 +21,4 @@ client/dist/*
 
 package-lock.json
 tags
+tags.*
