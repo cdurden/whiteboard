@@ -18,3 +18,6 @@ deploy
 
 # min
 client/dist/*
+
+package-lock.json
+tags
