@@ -1,5 +1,5 @@
-angular.module('whiteboard.services.token', [])
-.factory('AttachTokens', function ($window) {
+
+
     var attach = {
       request: function (object) {
         var jwt = $window.localStorage.getItem('token');

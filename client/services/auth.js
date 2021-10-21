@@ -1,18 +1,15 @@
-angular.module('whiteboard.services.auth', [])
-.factory('Auth', function ($http, $window) {
-
-  var generateRandomId = function (length) {
+var generateRandomId = function (length) {
     var id = "";
-    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     for (var i = 0; i < length; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
+        id += chars.charAt(Math.floor(Math.random() * chars.length));
     }
 
     return id;
-  };
+};
 
-  return {
-    generateRandomId: generateRandomId
-  };
-});
+export default {
+    generateRandomId: generateRandomId,
+};

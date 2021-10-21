@@ -1,64 +1,71 @@
-angular.module('whiteboard.services.visualizer', [])
-.factory('Visualizer', ['BoardData', function (BoardData) {
-  var selectionGlow;
-  var selected;
-  function visualizeSelection (selection) {
+import BoardData from "./board-data.js";
+
+var selectionGlow;
+var selected;
+function visualizeSelection(selection) {
     var board = BoardData.getBoard();
-    var scale = BoardData.getZoomScale()
+    var scale = BoardData.getZoomScale();
     if (!selection || !(selection === selected)) {
-      if (selectionGlow) {
+        if (selectionGlow) {
+            selectionGlow.remove();
+            selectionGlow.clear();
+            selected = null;
+        }
+    }
+    if (selection && (!selectionGlow || selectionGlow.items.length === 0)) {
+        selected = selection;
+        selectionGlow = selection.glow({
+            color: "blue",
+            width: 10 * scale,
+        });
+    }
+}
+
+function clearSelection() {
+    if (selectionGlow) {
         selectionGlow.remove();
         selectionGlow.clear();
         selected = null;
-      }
     }
-    if (selection && (!selectionGlow || selectionGlow.items.length === 0)) {
-      selected = selection;
-      selectionGlow = selection.glow({
-        'color': 'blue',
-        'width': 10 * scale
-      });
-    }
-  }
+}
 
-  function clearSelection () {
-    if (selectionGlow) {
-      selectionGlow.remove();
-      selectionGlow.clear();
-      selected = null;
-    }
-  }
-
-  var displayedSnaps;
-  function visualizeSnaps (snaps, closest) {
+var displayedSnaps;
+function visualizeSnaps(snaps, closest) {
     var board = BoardData.getBoard();
     var scale = BoardData.getZoomScale();
     if (!displayedSnaps) {
-      displayedSnaps = BoardData.getBoard().set();
+        displayedSnaps = BoardData.getBoard().set();
     } else {
-      displayedSnaps.remove();
-      displayedSnaps.clear();
+        displayedSnaps.remove();
+        displayedSnaps.clear();
     }
     for (var snap in snaps) {
-      if (snaps[snap] === closest) {
-        displayedSnaps.push(board.circle(snaps[snap].x, snaps[snap].y, 5 * scale).attr({'stroke': 'red', 'stroke-width': 1 * scale}));
-      } else {
-        displayedSnaps.push(board.circle(snaps[snap].x, snaps[snap].y, 3.5 * scale).attr({'stroke': 'green', 'stroke-width': 1 * scale}));
-      }
+        if (snaps[snap] === closest) {
+            displayedSnaps.push(
+                board
+                    .circle(snaps[snap].x, snaps[snap].y, 5 * scale)
+                    .attr({ stroke: "red", "stroke-width": 1 * scale })
+            );
+        } else {
+            displayedSnaps.push(
+                board
+                    .circle(snaps[snap].x, snaps[snap].y, 3.5 * scale)
+                    .attr({ stroke: "green", "stroke-width": 1 * scale })
+            );
+        }
     }
-  }
+}
 
-  function clearSnaps () {
+function clearSnaps() {
     if (displayedSnaps) {
-      displayedSnaps.remove();
-      displayedSnaps.clear();
+        displayedSnaps.remove();
+        displayedSnaps.clear();
     }
-  }
+}
 
-  return {
+export default {
     visualizeSelection: visualizeSelection,
     visualizeSnaps: visualizeSnaps,
     clearSelection: clearSelection,
-    clearSnaps: clearSnaps
-  }
-}]);
+    clearSnaps: clearSnaps,
+};

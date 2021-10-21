@@ -1,7 +1,7 @@
-angular.module('whiteboard.services.zoom', [])
-.factory('Zoom', ['BoardData', function (BoardData) {
-  var last;
-  function zoom (ev, mouseXY) {
+import BoardData from "./board-data.js";
+
+var last;
+function zoom(ev, mouseXY) {
     var board = BoardData.getBoard();
     var scalingFactor = BoardData.getZoomScale();
     var offset = BoardData.getOffset();
@@ -9,51 +9,56 @@ angular.module('whiteboard.services.zoom', [])
     var currentDims = BoardData.getViewBoxDims();
 
     if (mouseXY) {
-      if (last) {
-        var up;
-        if (ev.clientY > last) {
-          up = 1.05;
-        } else if (ev.clientY < last) {
-          up = 0.95;
-        } else {
-          up = 1;
+        if (last) {
+            var up;
+            if (ev.clientY > last) {
+                up = 1.05;
+            } else if (ev.clientY < last) {
+                up = 0.95;
+            } else {
+                up = 1;
+            }
+            scalingFactor = scalingFactor * up;
+            BoardData.setZoomScale(1 / scalingFactor);
         }
-        scalingFactor = scalingFactor * up;
-        BoardData.setZoomScale(1 / scalingFactor);
-      }
-      last = ev.clientY;
+        last = ev.clientY;
     }
 
     var newViewBoxDims = {
-      width: originalDims.width * scalingFactor,
-      height: originalDims.height * scalingFactor
+        width: originalDims.width * scalingFactor,
+        height: originalDims.height * scalingFactor,
     };
     BoardData.setViewBoxDims(newViewBoxDims);
 
     if (mouseXY) {
-      var newOffset = {
-        x: offset.x,
-        y: offset.y
-      };
+        var newOffset = {
+            x: offset.x,
+            y: offset.y,
+        };
     } else {
-      var newOffset = {
-        x: offset.x + currentDims.width / 2 - newViewBoxDims.width / 2,
-        y: offset.y + currentDims.height / 2 - newViewBoxDims.height / 2
-      };
+        var newOffset = {
+            x: offset.x + currentDims.width / 2 - newViewBoxDims.width / 2,
+            y: offset.y + currentDims.height / 2 - newViewBoxDims.height / 2,
+        };
     }
     BoardData.setOffset(newOffset);
 
-    board.setViewBox(newOffset.x, newOffset.y, newViewBoxDims.width, newViewBoxDims.height);
-  };
+    board.setViewBox(
+        newOffset.x,
+        newOffset.y,
+        newViewBoxDims.width,
+        newViewBoxDims.height
+    );
+}
 
-  function resetZoom () {
+function resetZoom() {
     last = null;
-  }
+}
 
-  var startPanCoords;
-  var startPanOffset;
-  var newOffset;
-  function pan (ev) {
+var startPanCoords;
+var startPanOffset;
+var newOffset;
+function pan(ev) {
     var board = BoardData.getBoard();
     var scalingFactor = BoardData.getScalingFactor();
     var offset = BoardData.getOffset();
@@ -61,32 +66,36 @@ angular.module('whiteboard.services.zoom', [])
     var canvasMargin = BoardData.getCanvasMargin();
 
     var mousePosition = {
-      x: (ev.clientX - canvasMargin.x) * scalingFactor + offset.x,
-      y: (ev.clientY - canvasMargin.y) * scalingFactor + offset.y
+        x: (ev.clientX - canvasMargin.x) * scalingFactor + offset.x,
+        y: (ev.clientY - canvasMargin.y) * scalingFactor + offset.y,
     };
 
     if (!startPanCoords) {
-      startPanCoords = mousePosition;
-      startPanOffset = offset;
+        startPanCoords = mousePosition;
+        startPanOffset = offset;
     } else {
-      newOffset = {
-        x: startPanOffset.x + (startPanCoords.x - mousePosition.x),
-        y: startPanOffset.y + (startPanCoords.y - mousePosition.y)
-      };
+        newOffset = {
+            x: startPanOffset.x + (startPanCoords.x - mousePosition.x),
+            y: startPanOffset.y + (startPanCoords.y - mousePosition.y),
+        };
 
-      board.setViewBox(newOffset.x, newOffset.y, currentDims.width, currentDims.height);
+        board.setViewBox(
+            newOffset.x,
+            newOffset.y,
+            currentDims.width,
+            currentDims.height
+        );
     }
-  }
+}
 
-  function resetPan () {
+function resetPan() {
     startPanCoords = startPanOffset = null;
     BoardData.setOffset(newOffset);
-  }
+}
 
-  return {
+export default {
     zoom: zoom,
     resetZoom: resetZoom,
     pan: pan,
-    resetPan: resetPan
-  }
-}]);
+    resetPan: resetPan,
+};

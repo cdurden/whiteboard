@@ -1,52 +1,55 @@
-angular.module('whiteboard.services.boarddata', [])
-.factory('BoardData', function () {
-  //svgWidth/Height are the width and height of the DOM element
-  var svgWidth = 1500; //sizeX
-  var svgHeight = 1000; //sizeY
-  //offsetX/Y measure the top-left point of the viewbox
-  var offsetX = 0;
-  var offsetY = 0;
-  //scalingFactor is the level of zooming relative to the start
-  var scalingFactor = 1;
+//svgWidth/Height are the width and height of the DOM element
+var svgWidth = 1500; //sizeX
+var svgHeight = 1000; //sizeY
+//offsetX/Y measure the top-left point of the viewbox
+var offsetX = 0;
+var offsetY = 0;
+//scalingFactor is the level of zooming relative to the start
+var scalingFactor = 1;
 
-  var board;
-  var $canvas;
-  //canvasMarginX/Y are the left and top margin of the SVG in the browser
-  var canvasMarginX; //canvasX
-  var canvasMarginY; //canvasY
-  //viewBoxWidth/Height are needed for zooming
-  var viewBoxWidth;// = svgWidth;
-  var viewBoxHeight;// = svgHeight;
-  var cursor;
-  var shapeStorage = {};
-  var currentShape;
-  var currentShapeId;
-  var editorShape;
-  var socketId;
+var board;
+var canvas;
+//canvasMarginX/Y are the left and top margin of the SVG in the browser
+var canvasMarginX; //canvasX
+var canvasMarginY; //canvasY
+//viewBoxWidth/Height are needed for zooming
+var viewBoxWidth; // = svgWidth;
+var viewBoxHeight; // = svgHeight;
+var cursor;
+var shapeStorage = {};
+var currentShape;
+var currentShapeId;
+var editorShape;
+var socketId;
 
-  var tool = {
-    name: 'path',
-    'stroke-width': 3,
+var tool = {
+    name: "path",
+    "stroke-width": 3,
     colors: {
-      fill: 'transparent',
-      stroke: '#000000'
-    }
-  };
+        fill: "transparent",
+        stroke: "#000000",
+    },
+};
 
-  function createBoard (element) {
+function createBoard(element) {
+    ResizeSensorApi.create(
+        document.getElementsByClassName("app-container")[0],
+        handleWindowResize
+    );
 
-    ResizeSensorApi.create(document.getElementsByClassName('app-container')[0], handleWindowResize);
-
-    board = Raphael(element[0]);
+    board = Raphael(element);
     board.setViewBox(0, 0, svgWidth, svgHeight, true);
-    board.canvas.setAttribute('preserveAspectRatio', 'none');
+    board.canvas.setAttribute("preserveAspectRatio", "none");
 
-    $canvas = element.find('svg');
-    canvasMarginX = $canvas.position().left;
-    canvasMarginY = $canvas.position().top;
-  }
+    canvas = element.getElementsByTagName("svg")[0];
+    canvasMarginX = element.offsetLeft;
+    canvasMarginY = element.offsetTop;
+    //canvasMarginX = canvas.offsetLeft;
+    //canvasMarginY = canvas.offsetTop;
+    //canvasMarginY = $canvas.position().top;
+}
 
-  function handleWindowResize (newPageSize) {
+function handleWindowResize(newPageSize) {
     svgWidth = newPageSize.width;
     svgHeight = newPageSize.height;
 
@@ -54,163 +57,164 @@ angular.module('whiteboard.services.boarddata', [])
     viewBoxHeight = svgHeight * scalingFactor;
     var offset = getOffset();
     board.setViewBox(offset.x, offset.y, viewBoxWidth, viewBoxHeight, true);
-  }
+}
 
-  function getBoard () {
+function getBoard() {
     return board;
-  }
+}
 
-  function getCursor () {
+function getCursor() {
     return cursor;
-  }
+}
 
-  function setCursor () {
+function setCursor() {
     cursor = board.circle(window.innerWidth / 2, window.innerHeight / 2, 5);
     return cursor;
-  }
+}
 
-  function moveCursor (screenPosition) {
+function moveCursor(screenPosition) {
     cursor.attr({
-      cx: Math.floor(screenPosition[0]),
-      cy: Math.floor(screenPosition[1])
-    })
-  }
+        cx: Math.floor(screenPosition[0]),
+        cy: Math.floor(screenPosition[1]),
+    });
+}
 
-  function setEditorShape (shape) {
+function setEditorShape(shape) {
     editorShape = shape;
-  }
+}
 
-  function unsetEditorShape () {
+function unsetEditorShape() {
     editorShape = null;
-  }
+}
 
-  function getEditorShape () {
+function getEditorShape() {
     return editorShape;
-  }
+}
 
-  function getViewBoxDims () {
+function getViewBoxDims() {
     return {
-      width: viewBoxWidth,
-      height: viewBoxHeight
+        width: viewBoxWidth,
+        height: viewBoxHeight,
     };
-  }
+}
 
-  function setViewBoxDims (newViewBoxDims) {
+function setViewBoxDims(newViewBoxDims) {
     viewBoxWidth = newViewBoxDims.width;
     viewBoxHeight = newViewBoxDims.height;
-  }
+}
 
-  function getOriginalDims () {
+function getOriginalDims() {
     return {
-      width: svgWidth,
-      height: svgHeight
+        width: svgWidth,
+        height: svgHeight,
     };
-  }
+}
 
-  function getCanvasMargin () {
+function getCanvasMargin() {
     return {
-      x: canvasMarginX,
-      y: canvasMarginY
+        x: canvasMarginX,
+        y: canvasMarginY,
     };
-  }
+}
 
-  function getScalingFactor () {
+function getScalingFactor() {
     return scalingFactor;
-  }
+}
 
-  function getOffset () {
+function getOffset() {
     return {
-      x: offsetX,
-      y: offsetY
-    }
-  }
+        x: offsetX,
+        y: offsetY,
+    };
+}
 
-  function setOffset (newOffset) {
+function setOffset(newOffset) {
     offsetX = newOffset.x;
     offsetY = newOffset.y;
-  }
+}
 
-  function getCanvas () {
-    return $canvas;
-  }
+function getCanvas() {
+    return canvas;
+}
 
-  function setSocketId (id) {
+function setSocketId(id) {
     socketId = id;
-  }
+}
 
-  function getSocketId () {
+function getSocketId() {
     return socketId;
-  }
+}
 
-  function pushToStorage (id, socketId, shape) {
+function pushToStorage(id, socketId, shape) {
     if (!shapeStorage[socketId]) {
-      shapeStorage[socketId] = {};
+        shapeStorage[socketId] = {};
     }
     shapeStorage[socketId][id] = shape;
-  }
+}
 
-  function getShapeById (id, socketId) {
+function getShapeById(id, socketId) {
     return shapeStorage[socketId][id];
-  }
+}
 
-  function getCurrentShape () {
+function getCurrentShape() {
     return currentShape;
-  }
+}
 
-  function setCurrentShape (id) {
+function setCurrentShape(id) {
     currentShape = shapeStorage[socketId][id];
-  }
+}
 
-  function unsetCurrentShape () {
+function unsetCurrentShape() {
     currentShape = null;
-  }
+}
 
-  function getCurrentShapeId () {
+function getCurrentShapeId() {
     return currentShapeId;
-  }
+}
 
-  function generateShapeId () {
+function generateShapeId() {
     currentShapeId = Raphael._oid;
     return currentShapeId;
-  }
+}
 
-  function getCurrentTool () {
+function getCurrentTool() {
     return tool;
-  }
+}
 
-  function setCurrentToolName (name) {
+function setCurrentToolName(name) {
     tool.name = name;
-  }
+    getCanvas().setAttribute("class", tool);
+}
 
-  function setColors (fill, stroke) {
+function setColors(fill, stroke) {
     fill = fill || tool.colors.fill;
     stroke = stroke || tool.colors.stroke;
-    
+
     tool.colors.fill = fill;
-    tool.colors.stroke = stroke; 
-  }
+    tool.colors.stroke = stroke;
+}
 
-  function setZoomScale (scale) {
+function setZoomScale(scale) {
     scalingFactor = 1 / scale;
-  };
+}
 
-  function getZoomScale () {
+function getZoomScale() {
     return scalingFactor;
-  }
+}
 
-  function getShapeStorage () {
+function getShapeStorage() {
     return shapeStorage;
-  }
+}
 
-  function setStrokeWidth (width) {
-    tool['stroke-width'] = width;
-  }
+function setStrokeWidth(width) {
+    tool["stroke-width"] = width;
+}
 
-  function getStrokeWidth () {
-    return tool['stroke-width'];
-  }
+function getStrokeWidth() {
+    return tool["stroke-width"];
+}
 
-  return {
+export default {
     getShapeStorage: getShapeStorage,
     getCursor: getCursor,
     setCursor: setCursor,
@@ -243,6 +247,5 @@ angular.module('whiteboard.services.boarddata', [])
     unsetEditorShape: unsetEditorShape,
     getEditorShape: getEditorShape,
     setStrokeWidth: setStrokeWidth,
-    getStrokeWidth: getStrokeWidth
-  }
-});
+    getStrokeWidth: getStrokeWidth,
+};

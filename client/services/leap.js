@@ -1,5 +1,6 @@
-angular.module('whiteboard.services.leapMotion', [])
-.factory('LeapMotion', ['EventHandler', function (EventHandler) {
+import EventHandler from "board-data.js";
+
+
 
   // var controller = new Leap.Controller({enableGestures: true})
   //   .use('screenPosition', {scale: 0.25})
@@ -22,7 +23,7 @@ angular.module('whiteboard.services.leapMotion', [])
   //     //           console.log("Swipe Gesture");
   //     //           break;
   //     //       }
-  //     //   });
+  //     //   
   //     // }
 
   //     frame.hands.forEach(function (hand, index) {
@@ -40,8 +41,8 @@ angular.module('whiteboard.services.leapMotion', [])
   //       if (hand.pinchStrength === 1) {
   //         // console.log('pinchStrength === 1');
   //       }
-  //     });
+  //     
   //   })
 
-  return {};
-}]);
+  export {};
+
